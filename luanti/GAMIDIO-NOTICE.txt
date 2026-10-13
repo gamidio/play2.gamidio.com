@@ -1,0 +1,19 @@
+Luanti with Minetest Game — hosted by Gamidio (gamidio.com)
+
+Original game: Luanti contributors (formerly Minetest, Perttu Ahola and others); web port by paradust7; Minetest Game by the Luanti/Minetest team
+Upstream source: https://github.com/paradust7/luanti-wasm
+Upstream commit: 3d6796615a8f42ddee7b169589025d167d3181d6
+License: Luanti: LGPL-2.1 or later (code), CC BY-SA 3.0 (media); web port build scripts: MIT; Minetest Game: LGPL-2.1 (code), CC BY-SA 3.0 (media) (https://github.com/luanti-org/luanti/blob/master/LICENSE.txt)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - build_fsroot.sh: Minetest Game included in the base pack
+  - build_zstd.sh: zstd: static library only
+  - build_libzip.sh: libzip: static library only
+  - static/launcher.js: no network proxy (single player)
+  - static/index.html: Gamidio launch page (Play button, single player; no proxy choice, server mode or invite links)
+  - built with: install_emsdk.sh (emsdk 6.0.8, the port's patches) and build_all.sh, release
+  - (build output) removed .htaccess files (Apache only; GitHub Pages ignores them)
+  - (build output) index.html: coi-serviceworker 0.1.7 (MIT) for cross-origin isolation (threads)
+  - (build output) index.html: offline guard: no connections to third-party servers (ContentDB, server list)

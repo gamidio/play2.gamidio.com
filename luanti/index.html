@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>/* Gamidio: no requests to third-party servers from this game */(function(){
+var dead=new URL('gamidio-offline-blocked',location.href).href;
+var foreign=function(u){try{return new URL(u,location.href).origin!==location.origin}catch(e){return false}};
+var f=window.fetch;if(f){window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&foreign(u)){return f.call(window,dead,o&&{method:'GET'})}return f.apply(window,arguments)}}
+var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);if(u&&foreign(u)){a[0]='GET';a[1]=dead}return op.apply(this,a)};
+var W=window.WebSocket;if(W){window.WebSocket=function(u,p){if(foreign(String(u).replace(/^ws/,'http')))throw new DOMException('blocked by Gamidio','SecurityError');return new W(u,p)};window.WebSocket.prototype=W.prototype}
+})();</script>
+<script src="coi-serviceworker.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luanti</title>
+<style>
+html,body{margin:0;height:100%;background:#0d1117;color:#e6edf3;font:16px system-ui,sans-serif}
+#gamidio-start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:16px;z-index:10;
+background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
+#gamidio-start h1{margin:0;font-size:clamp(34px,7vw,56px);letter-spacing:.04em}
+#gamidio-start p{margin:0;max-width:34em;opacity:.8}
+#gamidio-play{font:700 22px system-ui,sans-serif;padding:14px 40px;border:0;border-radius:12px;background:#4ade80;color:#0d1117;cursor:pointer}
+#gamidio-play:disabled{opacity:.45;cursor:default}
+#gamidio-menu{font:600 15px system-ui,sans-serif;padding:8px 18px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:transparent;color:#e6edf3;cursor:pointer}
+#gamidio-menu:disabled{opacity:.45;cursor:default}
+#gamidio-status{min-height:1.4em;opacity:.85}
+</style>
+</head>
+<body>
+<div id="gamidio-start">
+  <h1>Luanti</h1>
+  <p>An open-source voxel game: explore, mine, craft and build in an endless world.</p>
+  <div id="gamidio-status">Loading&hellip;</div>
+  <button id="gamidio-play" disabled>Play</button>
+  <button id="gamidio-menu" disabled>Worlds and settings</button>
+  <p style="font-size:14px">The first start downloads the game. Your worlds are saved in this browser.</p>
+</div>
+<script src="c34d1cf219c4/launcher.js"></script>
+<script>
+(function () {
+  var status = document.getElementById('gamidio-status');
+  var play = document.getElementById('gamidio-play');
+  var menu = document.getElementById('gamidio-menu');
+  var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  var args = LuantiArgs.fromQueryString(window.location.search);
+  var mtl = new LuantiLauncher();
+  mtl.addPacks(args.packs);
+  mtl.onprogress = function (name, progress) {
+    var what = name.indexOf('install') === 0 ? 'Installing' : 'Downloading';
+    status.textContent = what + ' ' + Math.round(progress * 100) + '%';
+  };
+  mtl.onready = function () { status.textContent = 'Ready'; play.disabled = false; menu.disabled = false; };
+  mtl.onexit = function () { location.reload(); };
+  mtl.onerror = function (err) { status.textContent = 'Something went wrong: ' + err; };
+  function start(direct) {
+    // Phones: the tap allows fullscreen (no browser bars) and the landscape lock where the browser supports it.
+    if (touch && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen({navigationUI: 'hide'}).then(function () {
+        if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
+      }).catch(function () {});
+    }
+    // Luanti's own touch controls (joystick, jump/dig/place buttons): "auto" switches only after a first touch event
+    // reaches the game, which never happens on the web port, so phones are told directly.
+    if (touch) mtl.setConf('touch_controls', 'true');
+    // Small screens: Luanti's menus are laid out for 600+ px of height.
+    var h = Math.min(window.innerHeight, screen.height || window.innerHeight);
+    if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.5, Math.round(h / 600 * 100) / 100)));
+    if (direct) {
+      // Straight into a world (created on the first start), no typing needed.
+      args.go = true;
+      args.world = '/luanti/worlds/Gamidio world';
+      args.extra = ['--gameid', 'minetest_game'];
+    }
+    document.getElementById('gamidio-start').remove();
+    mtl.setLang('en');
+    mtl.launch(args);
+  }
+  play.addEventListener('click', function () { start(true); });
+  menu.addEventListener('click', function () { start(false); });
+})();
+</script>
+</body>
+</html>

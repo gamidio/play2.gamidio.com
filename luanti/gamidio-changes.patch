@@ -1,0 +1,369 @@
+--- a/build_fsroot.sh
++++ b/build_fsroot.sh
+@@ -32,6 +32,8 @@
+ EOF
+ 
+ mkdir -p games
++# Gamidio: Minetest Game included in the base pack
++cp -a "$BASE_DIR/gamidio-games/minetest_game" games/
+ 
+ popd
+ 
+--- a/build_libzip.sh
++++ b/build_libzip.sh
+@@ -12,7 +12,7 @@
+ export LDFLAGS="$LDFLAGS -L${INSTALL_DIR}/lib --use-port=zlib"
+ 
+ emcmake cmake \
+-    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
++    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" -DBUILD_SHARED_LIBS=OFF
+ 
+ emmake make
+ emmake make install
+--- a/build_zstd.sh
++++ b/build_zstd.sh
+@@ -14,7 +14,7 @@
+ export CFLAGS="$CFLAGS -D_POSIX_SOURCE=1"
+ export CXXFLAGS="$CXXFLAGS -D_POSIX_SOURCE=1"
+ emcmake cmake \
+-  -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
++  -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" -DZSTD_BUILD_SHARED=OFF \
+   "$SOURCES_DIR/zstd/build/cmake"
+ 
+ emmake make
+--- a/static/index.html
++++ b/static/index.html
+@@ -1,250 +1,74 @@
+ <!doctype html>
+-<html lang="en-us">
+-  <head>
+-    <meta charset="utf-8">
+-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+-    <title>Luanti for the Web</title>
+-  </head>
+-  <body style="background-color: black">
+-    <div id="temporary_console" class="console" style="color: white"></div>
+-    <div id="launch_form" class="console" style="color: white; display: none;">
+-      <hr>
+-      <b>Select Network Proxy:</b>
+-      <select id="select_proxy">
+-          <!-- filled by javascript -->
+-      </select>
+-
+-      <br/>
+-
+-      <b>Select language:</b>
+-      <select id="select_language">
+-          <!-- filled by javascript -->
+-      </select>
+-
+-      <hr>
+-      <button id="launch" style="width: 300px; height: 50px; font-size: 20pt;">Launch Luanti</button>
+-      <br/>
+-      <hr>
+-      <b style="font-size: 20pt;">Run Server In Browser</b>
+-      <br/>
+-      <b>Player Name:</b>
+-      <input style="border: 2px solid black; width: 400px; height: 2em" type="text" id="multiplayer_username" required="" pattern="[A-Za-z0-9_-]{1,20}" maxlength="19" title="Alphanumeric, 19 characters max">
+-      <br/>
+-      <b>World:</b>
+-      <select id="multiplayer_world">
+-          <!-- filled by javascript -->
+-      </select>
+-      <br/>
+-      <span>After launch, copy the URL and use it to open clients.</span>
+-      <br/>
+-      <span>Closing this page shuts down the server and ends the game.</span>
+-      <br/>
+-      <button id="launch_server" style="width: 300px; height: 50px; font-size: 20pt;">Launch Server</button>
+-
+-    </div>
+-    <div id="join_form" class="console" style="color: white; display: none;">
+-      <hr>
+-      <b style="font-size: 20pt;">Join a Game from Native Luanti</b>
+-      <br/>
+-      <div id="join_status" style="margin-top: 1em; font-size: 14pt;"></div>
+-      <hr>
+-    </div>
+-    <script type="text/javascript" src="%__RELEASE_UUID__%/launcher.js"></script>
+-    <script type="text/javascript">
+-
+-      // Reduce memory and network usage
+-      function enableMemorySaving(mtl) {
+-          mtl.setConf('viewing_range', 85);
+-          mtl.setConf('max_block_send_distance', 5);
+-          mtl.setConf('max_block_generate_distance', 5);
+-      }
+-
+-      const launchForm = document.getElementById('launch_form');
+-      const joinForm = document.getElementById('join_form');
+-      const tcon = document.getElementById('temporary_console');
+-
+-      // A join code belongs to the proxy that issued it, so only that one is
+-      // asked. There is one proxy behind this page.
+-      const PROXIES = [
+-          [ "wss://na1.dustlabs.io/mtproxy", "North America" ],
+-          [ "wss://sa1.dustlabs.io/mtproxy", "South America" ],
+-          [ "wss://eu1.dustlabs.io/mtproxy", "Europe" ],
+-          [ "wss://ap1.dustlabs.io/mtproxy", "Asia" ],
+-          [ "wss://ap2.dustlabs.io/mtproxy", "Australia" ],
+-      ];
+-      function tcon_print(prefix, line) {
+-          if (prefix) {
+-              for (child of tcon.childNodes) {
+-                  if (child.nodeName == 'PRE' && child.innerText.startsWith(prefix)) {
+-                      child.innerText = prefix + line;
+-                      return;
+-                  }
+-              }
+-          }
+-          const p = document.createElement('pre');
+-          p.innerText = prefix + line;
+-          tcon.appendChild(p);
+-      }
+-
+-      function wipePage() {
+-          launchForm.remove();
+-          tcon.remove();
+-      }
+-
+-      function enableLaunchForm() {
+-          launchForm.style.display = 'block';
+-
+-          const select_proxy = document.getElementById('select_proxy');
+-          PROXIES.forEach((entry, index) => {
+-              const opt = document.createElement('option');
+-              opt.value = index;
+-              opt.innerText = entry[1];
+-              select_proxy.appendChild(opt);
+-          });
+-
+-          const select_language = document.getElementById('select_language');
+-          SUPPORTED_LANGUAGES.forEach(entry => {
+-              const opt = document.createElement('option');
+-              opt.value = entry[0];
+-              opt.innerText = entry[1];
+-              select_language.appendChild(opt);
+-          });
+-
+-          select_language.value = getDefaultLanguage();
+-          let languageChosen = false;
+-          select_language.addEventListener('change', () => { languageChosen = true; });
+-          mtl.initialLang().then((lang) => {
+-              if (!languageChosen) {
+-                  select_language.value = lang;
+-              }
+-          });
+-
+-          const launch = document.getElementById('launch');
+-          launch.addEventListener('click', () => {
+-              const proxyIndex = document.getElementById('select_proxy').value;
+-              const proxy = PROXIES[proxyIndex][0];
+-              wipePage();
+-              mtl.setProxy(proxy);
+-              mtl.setLang(select_language.value);
+-              mtl.launch(args);
+-          });
+-
+-          const launchServer = document.getElementById('launch_server');
+-
+-          // A server serves one of the worlds already in persistent storage,
+-          // and runs whichever game that world belongs to. There is nothing to
+-          // serve until Luanti has been run once to make one, so the button
+-          // waits until the list has arrived and holds something.
+-          const select_world = document.getElementById('multiplayer_world');
+-          let worlds = [];
+-          launchServer.disabled = true;
+-          mtl.listWorlds().then((found) => {
+-              worlds = found;
+-              if (worlds.length == 0) {
+-                  const opt = document.createElement('option');
+-                  opt.innerText = 'No saved worlds';
+-                  select_world.appendChild(opt);
+-                  return;
+-              }
+-              worlds.forEach((world, index) => {
+-                  const opt = document.createElement('option');
+-                  opt.value = index;
+-                  opt.innerText = `${world.name} (${world.gameid})`;
+-                  select_world.appendChild(opt);
+-              });
+-              launchServer.disabled = false;
+-          });
+-
+-          launchServer.addEventListener('click', () => {
+-              const proxyIndex = document.getElementById('select_proxy').value;
+-              const username = document.getElementById('multiplayer_username').value;
+-              const world = worlds[select_world.value];
+-              if (username.length == 0) {
+-                  alert("Empty username");
+-                  return;
+-              }
+-              if (!world) {
+-                  alert("No world selected");
+-                  return;
+-              }
+-              const game = world.gameid;
+-              wipePage();
+-
+-              // The address other players reach this server at is assigned
+-              // by the proxy when emsocket starts up, and is shown from
+-              // inside the game.
+-              mtl.setProxy(PROXIES[proxyIndex][0]);
+-              mtl.addPack(game);
+-              const args = new LuantiArgs();
+-              args.gameid = game;
+-              args.name = username;
+-              args.world = world.path;
+-              // --address would make Luanti act like a client instead of a host.
+-              args.port = 30000;
+-              args.go = true;
+-              enableMemorySaving(mtl);
+-              mtl.setLang(select_language.value);
+-              mtl.launch(args);
+-          });
+-
+-      }
+-
+-      // Someone who followed an invite link is only told where to point
+-      // desktop Luanti, so the launcher and its wasm are never loaded here.
+-      function showJoinPage(joinCode) {
+-          tcon.remove();
+-          launchForm.remove();
+-          joinForm.style.display = 'block';
+-          const joinStatus = document.getElementById('join_status');
+-          joinStatus.innerText = 'Contacting the server...';
+-          const proxyUrl = PROXIES[0][0];
+-          queryJoinCode(proxyUrl, joinCode).then((where) => {
+-              joinStatus.innerText =
+-                  `You may now connect to: ${joinHost(proxyUrl)} ${where.port} in Luanti. ` +
+-                  `If you don't have an account on the server, be sure to ` +
+-                  `register first.`;
+-          }, (err) => {
+-              joinStatus.innerText = err.message;
+-          });
+-      }
+-
+-      var args;
+-      var mtl;
+-      function startLauncher() {
+-          args = LuantiArgs.fromQueryString(window.location.search);
+-          tcon_print("", "Luanti Arguments: " + JSON.stringify(args.toArray(), null, '    '));
+-          tcon_print("", "Data Packs: " + JSON.stringify(args.packs, null, '    '));
+-
+-          mtl = new LuantiLauncher();
+-          mtl.addPacks(args.packs);
+-          mtl.onprint = (text) => {
+-              tcon_print("", text);
+-          };
+-          mtl.onprogress = (name, progress) => {
+-              const prefix = `Task ${name} : `;
+-              const pct = `${Math.round(progress * 100)}%`;
+-              tcon_print(prefix, pct);
+-          };
+-          mtl.onready = () => {
+-              tcon_print("", "READY!");
+-              enableLaunchForm();
+-          };
+-          mtl.onexit = (status) => {
+-              tcon_print("", `Luanti exited with status ${status}. Reload to play again.`);
+-          };
+-          mtl.onerror = (err) => {
+-              tcon_print("", "**************** FATAL ERROR ******************");
+-              tcon_print("", err);
+-              tcon_print("", "***********************************************");
+-          };
+-      }
+-
+-      const joinCode = new URLSearchParams(window.location.search).get('join');
+-      if (joinCode) {
+-          showJoinPage(joinCode);
+-      } else {
+-          startLauncher();
+-      }
+-    </script>
+-  </body>
++<html lang="en">
++<head>
++<meta charset="utf-8">
++<meta name="viewport" content="width=device-width, initial-scale=1">
++<title>Luanti</title>
++<style>
++html,body{margin:0;height:100%;background:#0d1117;color:#e6edf3;font:16px system-ui,sans-serif}
++#gamidio-start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:16px;z-index:10;
++background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
++#gamidio-start h1{margin:0;font-size:clamp(34px,7vw,56px);letter-spacing:.04em}
++#gamidio-start p{margin:0;max-width:34em;opacity:.8}
++#gamidio-play{font:700 22px system-ui,sans-serif;padding:14px 40px;border:0;border-radius:12px;background:#4ade80;color:#0d1117;cursor:pointer}
++#gamidio-play:disabled{opacity:.45;cursor:default}
++#gamidio-menu{font:600 15px system-ui,sans-serif;padding:8px 18px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:transparent;color:#e6edf3;cursor:pointer}
++#gamidio-menu:disabled{opacity:.45;cursor:default}
++#gamidio-status{min-height:1.4em;opacity:.85}
++</style>
++</head>
++<body>
++<div id="gamidio-start">
++  <h1>Luanti</h1>
++  <p>An open-source voxel game: explore, mine, craft and build in an endless world.</p>
++  <div id="gamidio-status">Loading&hellip;</div>
++  <button id="gamidio-play" disabled>Play</button>
++  <button id="gamidio-menu" disabled>Worlds and settings</button>
++  <p style="font-size:14px">The first start downloads the game. Your worlds are saved in this browser.</p>
++</div>
++<script src="%__RELEASE_UUID__%/launcher.js"></script>
++<script>
++(function () {
++  var status = document.getElementById('gamidio-status');
++  var play = document.getElementById('gamidio-play');
++  var menu = document.getElementById('gamidio-menu');
++  var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
++  var args = LuantiArgs.fromQueryString(window.location.search);
++  var mtl = new LuantiLauncher();
++  mtl.addPacks(args.packs);
++  mtl.onprogress = function (name, progress) {
++    var what = name.indexOf('install') === 0 ? 'Installing' : 'Downloading';
++    status.textContent = what + ' ' + Math.round(progress * 100) + '%';
++  };
++  mtl.onready = function () { status.textContent = 'Ready'; play.disabled = false; menu.disabled = false; };
++  mtl.onexit = function () { location.reload(); };
++  mtl.onerror = function (err) { status.textContent = 'Something went wrong: ' + err; };
++  function start(direct) {
++    // Phones: the tap allows fullscreen (no browser bars) and the landscape lock where the browser supports it.
++    if (touch && document.documentElement.requestFullscreen) {
++      document.documentElement.requestFullscreen({navigationUI: 'hide'}).then(function () {
++        if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
++      }).catch(function () {});
++    }
++    // Luanti's own touch controls (joystick, jump/dig/place buttons): "auto" switches only after a first touch event
++    // reaches the game, which never happens on the web port, so phones are told directly.
++    if (touch) mtl.setConf('touch_controls', 'true');
++    // Small screens: Luanti's menus are laid out for 600+ px of height.
++    var h = Math.min(window.innerHeight, screen.height || window.innerHeight);
++    if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.5, Math.round(h / 600 * 100) / 100)));
++    if (direct) {
++      // Straight into a world (created on the first start), no typing needed.
++      args.go = true;
++      args.world = '/luanti/worlds/Gamidio world';
++      args.extra = ['--gameid', 'minetest_game'];
++    }
++    document.getElementById('gamidio-start').remove();
++    mtl.setLang('en');
++    mtl.launch(args);
++  }
++  play.addEventListener('click', function () { start(true); });
++  menu.addEventListener('click', function () { start(false); });
++})();
++</script>
++</body>
+ </html>
+--- a/static/launcher.js
++++ b/static/launcher.js
+@@ -2143,7 +2143,7 @@
+         // 'kind:name' -> a promise settled once the module has installed it
+         // from a zip.
+         this.zipInstalls = new Map();
+-        this.proxyUrl = "wss://luanti.dustlabs.io/proxy";
++        this.proxyUrl = ""; // Gamidio: single player only, no network proxy
+         this.packsDir = DEFAULT_PACKS_DIR;
+         this.packsDirIsCors = false;
+         this.conf = new Map();
