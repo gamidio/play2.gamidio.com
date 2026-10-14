@@ -1,0 +1,16 @@
+Ancient Beast — hosted by Gamidio (gamidio.com)
+
+Original game: Freezing Moon and contributors
+Upstream source: https://github.com/FreezingMoon/AncientBeast
+Upstream commit: 5b768003a9daa9c92b5466c88e7172c6bb80db79
+License: GNU AGPL v3 (code); CC BY-SA 4.0 (artwork and audio); name and logo are trademarks of Freezing Moon (https://github.com/FreezingMoon/AncientBeast/blob/master/LICENSE.md)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - built with: bun install && bun run build (Vite), release
+  - (build output) removed analytics.js (the authors' Google Analytics helper, unused)
+  - (build output) index.html: https://icono-49d6.kxcdn.com/icono.min.css served locally as vendor/icono.min.css
+  - (build output) index.html: offline guard: no online lobby (PeerJS) or other third-party servers
+  - (build output) index.html: online lobby buttons hidden (offline copy)
+  - (build output) index.html: keyboard focus on click; arrow keys and Space do not scroll the page around the game

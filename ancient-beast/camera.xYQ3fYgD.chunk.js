@@ -1,0 +1,1 @@
+import{i as t}from"./runtime.CKBJ3Y_s.chunk.js";var n=null;function o(t){n=t}function r(){n=null}function a(o){const r=n,a=t();if(!r||!a)return;const{amplitude:i,durationMs:e,force:s,axis:u="both"}=o;let c=i;"both"!==u&&(c=new a.Math.Vector2("horizontal"===u?i:0,"vertical"===u?i:0)),r.shake(e,c,s)}export{o as n,a as r,r as t};
