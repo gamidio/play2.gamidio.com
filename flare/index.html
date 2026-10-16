@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>window.GAMIDIO_TOUCH_TARGET="#canvas"</script><script src="gamidio-touch.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flare: Empyrean Campaign</title>
+<script>/* Gamidio: flare.data is stored in 12 parts and joined while loading */(function(){
+var NAME="flare.data",N=12,SIZE=287287158,F=window.fetch.bind(window);
+window.fetch=function(u,o){var s=typeof u==='string'?u:(u&&u.url)||'';var p=s.split('?')[0];if(p.split('/').pop()!==NAME)return F(u,o);
+var i=0,cur=null;var stream=new ReadableStream({pull:function(c){function next(){if(cur)return cur.read().then(function(r){if(r.done){cur=null;return next()}c.enqueue(r.value)});
+if(i>=N){c.close();return}return F(p+'.'+(i++)).then(function(r){if(!r.ok)throw new Error(NAME+' part '+(i-1)+': '+r.status);cur=r.body.getReader();return next()})}return next()}});
+return Promise.resolve(new Response(stream,{status:200,headers:{'Content-Type':'application/octet-stream','Content-Length':String(SIZE)}}))};})();</script>
+<script>/* Gamidio: keyboard focus on click, game keys do not scroll the page around the game */(function(){var f=function(){window.focus()};addEventListener('mousedown',f,true);addEventListener('touchstart',f,{capture:true,passive:true});addEventListener('keydown',function(e){if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','PageUp','PageDown','Home','End'].indexOf(e.key)>=0&&!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))e.preventDefault()},true)})()</script>
+<script>/* Gamidio: no requests to third-party servers from this game */(function(){
+var dead=new URL('gamidio-offline-blocked',location.href).href;
+var foreign=function(u){try{return new URL(u,location.href).origin!==location.origin}catch(e){return false}};
+var f=window.fetch;if(f){window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&foreign(u)){return f.call(window,dead,o&&{method:'GET'})}return f.apply(window,arguments)}}
+var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);if(u&&foreign(u)){a[0]='GET';a[1]=dead}return op.apply(this,a)};
+var W=window.WebSocket;if(W){window.WebSocket=function(u,p){if(foreign(String(u).replace(/^ws/,'http')))throw new DOMException('blocked by Gamidio','SecurityError');return new W(u,p)};window.WebSocket.prototype=W.prototype}
+})();</script>
+<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,177.78vh)!important;height:min(56.25vw,100vh)!important}
+#status{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#bbb;font:16px system-ui,sans-serif;text-align:center;padding:0 16px}</style>
+</head>
+<body>
+<div id="status">Loading Flare...</div>
+<canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+<script>
+var Module = {
+  canvas: document.getElementById("canvas"),
+  print: function (t) { console.log(t); },
+  printErr: function (t) { console.warn(t); },
+  setStatus: function (s) {
+    var e = document.getElementById("status"); if (!e) return;
+    var m = /\((\d+)\/(\d+)\)/.exec(s || "");
+    if (m) e.textContent = "Downloading game data... " + Math.round(100 * m[1] / m[2]) + "% (about 287 MB, only on the first visit)";
+    else if (s) e.textContent = s; else e.remove();
+  }
+};
+/* Browsers start audio only after a click or key press. */
+function gamidioResumeAudio() {
+  var a = Module.SDL2 && Module.SDL2.audioContext;
+  if (a && a.state === "suspended") a.resume();
+}
+document.addEventListener("mousedown", gamidioResumeAudio, true);
+document.addEventListener("keydown", gamidioResumeAudio, true);
+</script>
+<script src="flare-data.js"></script>
+<script async src="flare.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+Flare: Empyrean Campaign — hosted by Gamidio (gamidio.com)
+
+Original game: Clint Bellanger, Justin Jacobs and the Flare contributors
+Upstream source: https://github.com/flareteam/flare-engine
+Upstream commit: 1969baeb89ebf94cf22e2bc2ed4e3d8413714d4f
+License: GNU GPL v3 or later (engine); game data CC BY-SA 3.0 (flare-game, see its CREDITS.txt) (https://github.com/flareteam/flare-game/blob/master/LICENSE.txt)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - src/Settings.cpp: mouse movement on by default
+  - src/Settings.cpp: no first-launch language dialog (English; changeable in Configuration)
+  - src/Settings.cpp: no first-launch mouse movement dialog
+  - game data: flare-game fantasycore + empyrean_campaign (CC-BY-SA 3.0); PNG sprite sheets re-encoded with pngquant --quality=70-95; Noto Serif JP/KR/SC fonts replaced by GNU Unifont (from the engine's default mod)
+  - built with emsdk 4.0.20 as make_emscripten.sh (without ASSERTIONS; data packed with file_packager)
+  - (build output) index.html: Gamidio page (16:9 canvas scaled to the frame, audio starts on the first click or key); flare.data stored in 24 MB parts, joined while loading
+  - (build output) index.html: touch controls (gamidio-touch.js, D-046): hold = right click, two fingers = move the view, pinch = zoom
+  - gamidio-touch.js: Gamidio's touch controls (written by Gamidio, part of these changes), included in full in this folder
