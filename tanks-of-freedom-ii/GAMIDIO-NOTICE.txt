@@ -1,0 +1,16 @@
+Tanks of Freedom II — hosted by Gamidio (gamidio.com)
+
+Original game: P1X (Krzysztof Jankowski, Czlowiek Imadlo) and contributors
+Upstream source: https://github.com/P1X-in/tanks-of-freedom-ii
+Upstream commit: dbe629ea05691599dde4fd65ab9a13b78a4ccfe1
+License: MIT (code and graphics); music/SFX CC BY-SA 4.0 (QmYaan) and CC BY 4.0 (reduz); fonts OFL / Apache 2.0; control icons CC0 (https://github.com/P1X-in/tanks-of-freedom-ii/blob/master/LICENSE.md)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - export_presets.cfg: Gamidio single-threaded Web preset (the repository has none)
+  - scenes/ui/menu/menu.gd: online menu disabled
+  - exported with the official Godot 4.4.1 editor and its web_nothreads_release template
+  - (build output) index.html: index.pck (over 200 MB) stored in 24 MB parts, joined while loading
+  - (build output) index.html: no requests to other hosts (online service)
+  - (build output) index.html: keyboard focus on click; arrow keys and Space do not scroll the page around the game
