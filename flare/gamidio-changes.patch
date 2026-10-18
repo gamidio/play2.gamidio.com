@@ -1,3 +1,35 @@
+--- a/src/SDLInputState.cpp
++++ b/src/SDLInputState.cpp
+@@ -31,6 +31,13 @@
+ #include "Platform.h"
+ #include "RenderDevice.h"
+ #include "SDLInputState.h"
++
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++#define GAMIDIO_TEXT_INPUT(on) EM_ASM({ if (window.gamidioTextInput) window.gamidioTextInput($0); }, on)
++#else
++#define GAMIDIO_TEXT_INPUT(on)
++#endif
+ #include "SaveLoad.h"
+ #include "Settings.h"
+ #include "SharedGameResources.h"
+@@ -866,6 +873,7 @@
+ 	if (!text_input) {
+ 		SDL_StartTextInput();
+ 		text_input = true;
++		GAMIDIO_TEXT_INPUT(1);
+ 	}
+ }
+ 
+@@ -873,6 +881,7 @@
+ 	if (text_input) {
+ 		SDL_StopTextInput();
+ 		text_input = false;
++		GAMIDIO_TEXT_INPUT(0);
+ 	}
+ }
+ 
 --- a/src/Settings.cpp
 +++ b/src/Settings.cpp
 @@ -75,7 +75,7 @@

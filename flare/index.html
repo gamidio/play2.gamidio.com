@@ -11,7 +11,7 @@ window.fetch=function(u,o){var s=typeof u==='string'?u:(u&&u.url)||'';var p=s.sp
 var i=0,cur=null;var stream=new ReadableStream({pull:function(c){function next(){if(cur)return cur.read().then(function(r){if(r.done){cur=null;return next()}c.enqueue(r.value)});
 if(i>=N){c.close();return}return F(p+'.'+(i++)).then(function(r){if(!r.ok)throw new Error(NAME+' part '+(i-1)+': '+r.status);cur=r.body.getReader();return next()})}return next()}});
 return Promise.resolve(new Response(stream,{status:200,headers:{'Content-Type':'application/octet-stream','Content-Length':String(SIZE)}}))};})();</script>
-<script>/* Gamidio: keyboard focus on click, game keys do not scroll the page around the game */(function(){var f=function(){window.focus()};addEventListener('mousedown',f,true);addEventListener('touchstart',f,{capture:true,passive:true});addEventListener('keydown',function(e){if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','PageUp','PageDown','Home','End'].indexOf(e.key)>=0&&!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))e.preventDefault()},true)})()</script>
+<script>/* Gamidio: keyboard focus on click, game keys do not scroll the page around the game */(function(){var f=function(){window.focus()};addEventListener('pointerdown',f,true);addEventListener('mousedown',f,true);addEventListener('touchstart',f,{capture:true,passive:true});addEventListener('keydown',function(e){if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','PageUp','PageDown','Home','End'].indexOf(e.key)>=0&&!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))e.preventDefault()},true)})()</script>
 <script>/* Gamidio: no requests to third-party servers from this game */(function(){
 var dead=new URL('gamidio-offline-blocked',location.href).href;
 var foreign=function(u){try{return new URL(u,location.href).origin!==location.origin}catch(e){return false}};
@@ -46,6 +46,7 @@ function gamidioResumeAudio() {
 document.addEventListener("mousedown", gamidioResumeAudio, true);
 document.addEventListener("keydown", gamidioResumeAudio, true);
 </script>
+<script src="gamidio-textinput.js"></script>
 <script src="flare-data.js"></script>
 <script async src="flare.js"></script>
 </body>

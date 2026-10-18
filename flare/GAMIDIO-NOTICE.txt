@@ -11,8 +11,13 @@ Changes made by Gamidio:
   - src/Settings.cpp: mouse movement on by default
   - src/Settings.cpp: no first-launch language dialog (English; changeable in Configuration)
   - src/Settings.cpp: no first-launch mouse movement dialog
+  - src/SDLInputState.cpp: JS hook for text input (Emscripten only)
+  - src/SDLInputState.cpp: text input start tells the page (phone keyboard)
+  - src/SDLInputState.cpp: text input stop tells the page
   - game data: flare-game fantasycore + empyrean_campaign (CC-BY-SA 3.0); PNG sprite sheets re-encoded with pngquant --quality=70-95; Noto Serif JP/KR/SC fonts replaced by GNU Unifont (from the engine's default mod)
   - built with emsdk 4.0.20 as make_emscripten.sh (without ASSERTIONS; data packed with file_packager)
   - (build output) index.html: Gamidio page (16:9 canvas scaled to the frame, audio starts on the first click or key); flare.data stored in 24 MB parts, joined while loading
   - (build output) index.html: touch controls (gamidio-touch.js, D-046): hold = right click, two fingers = move the view, pinch = zoom
+  - (build output) index.html: phone keyboard for the character name (gamidio-textinput.js)
   - gamidio-touch.js: Gamidio's touch controls (written by Gamidio, part of these changes), included in full in this folder
+  - gamidio-textinput.js: Gamidio's phone keyboard for text fields (written by Gamidio, part of these changes), included in full in this folder
