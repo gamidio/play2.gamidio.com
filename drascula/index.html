@@ -24,6 +24,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;outli
     bar=box.querySelector(".bar"),fill=bar.firstChild,msg=box.querySelector("p"),started=false,pending=0,got=0,total=0,timer;
   function mb(n){return (n/1048576).toFixed(n<10485760?1:0)}
   function render(){
+    if(got>total&&total>0)total=got;  // compressed transfer: Content-Length is smaller than the file
     if(total>0){bar.className="bar";fill.style.width=Math.min(100,100*got/total)+"%";msg.textContent="Downloading game data: "+mb(got)+" of "+mb(total)+" MB"}
     else{bar.className="bar wait";msg.textContent="Downloading game data…"}}
   function finish(){clearTimeout(timer);timer=setTimeout(function(){if(!pending){started=true;box.className="done"}},400)}
