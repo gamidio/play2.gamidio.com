@@ -1,6 +1,6 @@
 --- a/index.html
 +++ b/index.html
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,52 @@
 +<!doctype html>
 +<html lang="en"><head>
 +<script src="gamidio-touch.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,25 +8,47 @@
 +<script>/* Gamidio: keyboard focus on click, game keys do not scroll the page around the game */(function(){var f=function(){window.focus()};addEventListener('mousedown',f,true);addEventListener('touchstart',f,{capture:true,passive:true});addEventListener('keydown',function(e){if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','PageUp','PageDown','Home','End'].indexOf(e.key)>=0&&!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))e.preventDefault()},true)})()</script>
 +<style>html,body{margin:0;height:100%;overflow:hidden;background:#000}
 +canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;outline:none}
-+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;background:#000;color:#ddd;font:16px/1.5 system-ui,sans-serif;text-align:center;pointer-events:none}</style>
-+</head><body><canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas><div id="load">Loading…</div>
++#load{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
++  background:radial-gradient(circle at 50% 40%,#1d1838,#000 70%);color:#e8e6f0;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:16px;transition:opacity .4s}
++#load.done{opacity:0;pointer-events:none}
++#load .spin{width:44px;height:44px;border-radius:50%;border:4px solid rgba(255,255,255,.15);border-top-color:#8b7cff;animation:r 1s linear infinite}
++@keyframes r{to{transform:rotate(360deg)}}
++#load h1{margin:0;font-size:20px;font-weight:600}
++#load .bar{width:min(320px,80vw);height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
++#load .bar i{display:block;height:100%;width:0;border-radius:4px;background:#8b7cff;transition:width .2s}
++#load .bar.wait i{width:30%;animation:w 1.4s ease-in-out infinite}
++@keyframes w{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
++#load p{margin:0;color:#b9b4cc;font-size:14px;min-height:1.4em}</style>
++</head><body><canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
++<div id="load" role="status" aria-live="polite"><div class="spin"></div><h1>Drascula: The Vampire Strikes Back</h1><div class="bar wait"><i></i></div><p>Starting the game engine…</p></div>
 +<script>
 +(function(){
-+  var base=new URL("../scummvm/",location.href).href,load=document.getElementById("load"),pending=0,f=window.fetch;
-+  function show(){load.style.display=pending>0?"flex":"none"}
++  var base=new URL("../scummvm/",location.href).href,f=window.fetch,box=document.getElementById("load"),
++    bar=box.querySelector(".bar"),fill=bar.firstChild,msg=box.querySelector("p"),started=false,pending=0,got=0,total=0,timer;
++  function mb(n){return (n/1048576).toFixed(n<10485760?1:0)}
++  function render(){
++    if(total>0){bar.className="bar";fill.style.width=Math.min(100,100*got/total)+"%";msg.textContent="Downloading game data: "+mb(got)+" of "+mb(total)+" MB"}
++    else{bar.className="bar wait";msg.textContent="Downloading game data…"}}
++  function finish(){clearTimeout(timer);timer=setTimeout(function(){if(!pending){started=true;box.className="done"}},400)}
++  // A game file is read as a stream to count the bytes, then handed to the engine as a normal response.
++  function track(res){
++    if(!res.ok||!res.body)return res;
++    total+=+res.headers.get("content-length")||0;render();
++    var reader=res.body.getReader(),chunks=[];
++    return (function pump(){return reader.read().then(function(r){
++      if(r.done)return new Response(new Blob(chunks),{status:res.status,statusText:res.statusText,headers:res.headers});
++      chunks.push(r.value);got+=r.value.length;render();return pump()})})()}
 +  window.fetch=function(u,o){
 +    if(typeof u!=="string"||u.charAt(0)!=="/"||u.charAt(1)==="/")return f.call(this,u,o);
-+    var big=u.indexOf("/data/games/")===0&&!/index\.json$/.test(u);
-+    if(big){pending++;load.textContent="Loading game data…";show()}
 +    var r=f.call(this,base+u.slice(1),o);
-+    if(big)r.then(function(res){return res.clone().arrayBuffer()}).catch(function(){}).then(function(){pending--;show()});
-+    return r};
++    if(started||u.indexOf("/data/games/")!==0||/index\.json$/.test(u))return r;
++    pending++;clearTimeout(timer);render();
++    return r.then(track).then(function(x){pending--;if(!pending)finish();return x},function(e){pending--;msg.textContent="The game data could not be loaded. Please reload the page.";throw e})};
 +  // The games use F1-F10 (F5 = save or menu): the browser must not reload the page or open its help on them.
 +  addEventListener("keydown",function(e){if(/^F([1-9]|10)$/.test(e.key))e.preventDefault()},true);
 +  history.replaceState(null,"",location.pathname+location.search+"#"+"--path=/data/games/drascula --auto-detect");
 +  window.Module={canvas:document.getElementById("canvas"),locateFile:function(p){return base+p},
-+    print:function(){},printErr:function(t){console.warn(t)},
-+    setStatus:function(t){if(!pending){load.textContent=t?"Loading…":"";load.style.display=t?"flex":"none"}}};
++    print:function(){},printErr:function(t){console.warn(t)}};
 +})();
 +</script>
 +<script async src="../scummvm/scummvm.js"></script>
