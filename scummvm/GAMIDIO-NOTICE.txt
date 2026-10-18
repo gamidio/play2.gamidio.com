@@ -1,0 +1,10 @@
+ScummVM — adventure game engine used by Gamidio for its classic adventure games (gamidio.com)
+
+Upstream: https://github.com/scummvm/scummvm (https://www.scummvm.org/)
+Version: v2026.4.0 (commit 7d2709da5136866589f7602f5f5a7b17de03420e), unchanged, built with the project's Emscripten port
+  (dists/emscripten/build.sh libs configure make dist --disable-all-engines --enable-engine=sky,queen,lure,drascula --enable-mad --enable-vorbis --enable-release --disable-debug --disable-detection-full --disable-cloud --disable-libcurl --disable-sdlnet --disable-enet --disable-dlc --disable-scummvmdlc --disable-discord --disable-updates --disable-eventrecorder --disable-tts)
+License: GNU GPL v2 or later (doc/COPYING); bundled libraries under the licenses in doc/
+Corresponding source: the upstream tag above; the build options are listed here.
+Left out of the build output: the demo page (scummvm.html, manifest, icons), unused themes, Mac fonts and shaders.
+Game data in data/games/{game}/: freeware releases from downloads.scummvm.org, unchanged, each with its readme
+  and license as published.

@@ -1,0 +1,14 @@
+Drascula: The Vampire Strikes Back — hosted by Gamidio (gamidio.com)
+
+Original game: Alcachofa Soft S.L. (1996); freeware release 2008 with ScummVM
+Upstream source: https://www.scummvm.org/games/#games-drascula
+Upstream commit: drascula-1.0.zip + drascula-audio-mp3-2.0.zip (downloads.scummvm.org, freeware English version with music)
+License: Freeware licence of Alcachofa Soft S.L. (free distribution with the readme intact; readme.txt and readme-music.txt in the game data); engine ScummVM GPL-2.0-or-later (https://www.scummvm.org/games/#games-drascula)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - index.html: Gamidio page that starts the game in ScummVM v2026.4.0 (play/scummvm/, GPL-2.0-or-later)
+  - index.html: touch controls (gamidio-touch.js, D-046): hold = right click, two fingers = move the view, pinch = zoom
+  - game data: Packet.001, readme.txt from the freeware archive, unchanged, in play/scummvm/data/games/drascula/
+  - gamidio-touch.js: Gamidio's touch controls (written by Gamidio, part of these changes), included in full in this folder

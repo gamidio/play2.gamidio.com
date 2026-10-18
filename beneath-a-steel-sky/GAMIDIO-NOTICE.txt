@@ -1,0 +1,14 @@
+Beneath a Steel Sky — hosted by Gamidio (gamidio.com)
+
+Original game: Revolution Software Ltd. (1994); freeware release 2003 with ScummVM
+Upstream source: https://www.scummvm.org/games/#games-sky
+Upstream commit: bass-cd-1.2.zip (downloads.scummvm.org, freeware CD version 1.2)
+License: Freeware licence of Revolution Software (free distribution with the readme intact; readme.txt in the game data); engine ScummVM GPL-2.0-or-later (https://www.scummvm.org/games/#games-sky)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - index.html: Gamidio page that starts the game in ScummVM v2026.4.0 (play/scummvm/, GPL-2.0-or-later)
+  - index.html: touch controls (gamidio-touch.js, D-046): hold = right click, two fingers = move the view, pinch = zoom
+  - game data: bass-cd-1.2/sky.dnr, bass-cd-1.2/sky.dsk, bass-cd-1.2/readme.txt from the freeware archive, unchanged, in play/scummvm/data/games/sky/
+  - gamidio-touch.js: Gamidio's touch controls (written by Gamidio, part of these changes), included in full in this folder
