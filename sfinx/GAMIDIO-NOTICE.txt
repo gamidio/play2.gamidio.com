@@ -1,0 +1,14 @@
+Sfinx — hosted by Gamidio (gamidio.com)
+
+Original game: Laboratorium Komputerowe Avalon (1994); English freeware release 2014 with ScummVM
+Upstream source: https://www.scummvm.org/games/#games-sfinx
+Upstream commit: sfinx-en-v1.1.zip (downloads.scummvm.org, freeware English version)
+License: Freeware licence of Laboratorium Komputerowe Avalon (free distribution with license.txt intact; no fee for the game itself); engine ScummVM GPL-2.0-or-later (https://www.scummvm.org/games/#games-sfinx)
+
+Corresponding source of this copy = the upstream commit above + gamidio-changes.patch in this folder.
+
+Changes made by Gamidio:
+  - index.html: Gamidio page that starts the game in ScummVM v2026.4.0 (play/scummvm/, GPL-2.0-or-later)
+  - index.html: touch controls (gamidio-touch.js, D-046): hold = right click, two fingers = move the view, pinch = zoom
+  - game data: sfinx-en-v1.1/vol.cat, sfinx-en-v1.1/vol.dat, sfinx-en-v1.1/license.txt from the freeware archive, unchanged, in play/scummvm/data/games/sfinx/
+  - gamidio-touch.js: Gamidio's touch controls (written by Gamidio, part of these changes), included in full in this folder
