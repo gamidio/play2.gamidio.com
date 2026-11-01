@@ -12,6 +12,7 @@ Changes made by Gamidio:
   - build_zstd.sh: zstd: static library only
   - build_libzip.sh: libzip: static library only
   - static/launcher.js: no network proxy (single player)
+  - static/launcher.js: fullscreen canvas sized to the page, not the whole screen (phones with a camera cutout)
   - static/index.html: Gamidio launch page (Play button, single player; no proxy choice, server mode or invite links)
   - built with: install_emsdk.sh (emsdk 6.0.8, the port's patches) and build_all.sh, release
   - (build output) removed .htaccess files (Apache only; GitHub Pages ignores them)

@@ -367,3 +367,15 @@
          this.packsDir = DEFAULT_PACKS_DIR;
          this.packsDirIsCors = false;
          this.conf = new Map();
+--- a/static/launcher.js
++++ b/static/launcher.js
+@@ fixGeometry @@
+-        screenX = screen.width - dockWidth;
+-        screenY = screen.height;
++        screenX = document.documentElement.clientWidth - dockWidth;
++        screenY = document.documentElement.clientHeight;
+--- a/static/index.html
++++ b/static/index.html
+@@ viewport @@
+-<meta name="viewport" content="width=device-width, initial-scale=1">
++<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

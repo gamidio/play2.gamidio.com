@@ -1269,8 +1269,8 @@ function fixGeometry(override) {
 
     var isFullScreen = document.fullscreenElement ? true : false;
     if (isFullScreen) {
-        screenX = screen.width - dockWidth;
-        screenY = screen.height;
+        screenX = document.documentElement.clientWidth - dockWidth;
+        screenY = document.documentElement.clientHeight;
     } else {
         var headerHeight = document.getElementById('header').offsetHeight;
         screenX = document.documentElement.clientWidth - dockWidth;
