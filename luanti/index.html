@@ -55,11 +55,12 @@ background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
     // Luanti's own touch controls (joystick, jump/dig/place buttons): "auto" switches only after a first touch event
     // reaches the game, which never happens on the web port, so phones are told directly.
     if (touch) mtl.setConf('touch_controls', 'true');
-    // The canvas has real device pixels but the game assumes a density of 1: on a phone text came out tiny and cut off.
-    if (touch) mtl.setConf('display_density_factor', String(Math.min(5, window.devicePixelRatio || 1)));
-    // Small screens: Luanti's menus are laid out for 600+ px of height.
+    // The game measures its window in CSS pixels: a density above 1 only blows up the hotbar and the hearts. Set on
+    // every start, because players of an earlier version have 3.5 saved in their settings (owner 2026-11-01).
+    if (touch) mtl.setConf('display_density_factor', '1');
+    // Small screens: Luanti's menus are laid out for 600+ px of height, but text below 0.8 is too small to read.
     var h = Math.min(window.innerHeight, screen.height || window.innerHeight);
-    if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.5, Math.round(h / 600 * 100) / 100)));
+    if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.8, Math.round(h / 600 * 100) / 100)));
     if (direct) {
       // Straight into a world (created on the first start), no typing needed.
       args.go = true;

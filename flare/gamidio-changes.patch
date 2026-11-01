@@ -52,3 +52,12 @@
  }
  
  void Settings::setConfigDefault(size_t index, const std::string& name, const std::type_info *type, const std::string& default_val, void *storage, const std::string& comment) {
+--- a/index.html
++++ b/index.html
+@@ -49,5 +49,6 @@
+ <script src="gamidio-textinput.js"></script>
+ <script src="flare-data.js"></script>
+ <script async src="flare.js"></script>
++<script>window.GAMIDIO_GAMEPAD={"stick": false, "buttons": [{"label": "A", "mouse": 2}], "target": "#canvas"}</script><script src="gamidio-gamepad.js"></script>
+ </body>
+ </html>
