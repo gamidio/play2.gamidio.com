@@ -379,3 +379,8 @@
 @@ viewport @@
 -<meta name="viewport" content="width=device-width, initial-scale=1">
 +<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+--- a/static/index.html
++++ b/static/index.html
+@@ start() @@
++    // The canvas has real device pixels but the game assumes a density of 1: on a phone text came out tiny and cut off.
+    if (touch) mtl.setConf('display_density_factor', String(Math.min(5, window.devicePixelRatio || 1)));

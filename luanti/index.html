@@ -52,15 +52,11 @@ background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
   mtl.onexit = function () { location.reload(); };
   mtl.onerror = function (err) { status.textContent = 'Something went wrong: ' + err; };
   function start(direct) {
-    // Phones: the tap allows fullscreen (no browser bars) and the landscape lock where the browser supports it.
-    if (touch && document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen({navigationUI: 'hide'}).then(function () {
-        if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
-      }).catch(function () {});
-    }
     // Luanti's own touch controls (joystick, jump/dig/place buttons): "auto" switches only after a first touch event
     // reaches the game, which never happens on the web port, so phones are told directly.
     if (touch) mtl.setConf('touch_controls', 'true');
+    // The canvas has real device pixels but the game assumes a density of 1: on a phone text came out tiny and cut off.
+    if (touch) mtl.setConf('display_density_factor', String(Math.min(5, window.devicePixelRatio || 1)));
     // Small screens: Luanti's menus are laid out for 600+ px of height.
     var h = Math.min(window.innerHeight, screen.height || window.innerHeight);
     if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.5, Math.round(h / 600 * 100) / 100)));
@@ -78,5 +74,6 @@ background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
   menu.addEventListener('click', function () { start(false); });
 })();
 </script>
+<script src="gamidio-fullscreen.js"></script>
 </body>
 </html>

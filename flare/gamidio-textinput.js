@@ -39,7 +39,25 @@
 		later(function () { key("keydown", k, code, keyCode, 0); }, 60);
 		later(function () { key("keyup", k, code, keyCode, 0); }, 30);
 	}
+	// Games that read letters as key presses, not as text (Endless Sky: window.GAMIDIO_TEXT_KEYS = true).
+	function typeKey(ch) {
+		var lower = ch.toLowerCase(), code;
+		if (/[a-z]/.test(lower)) code = "Key" + lower.toUpperCase();
+		else if (/[0-9]/.test(ch)) code = "Digit" + ch;
+		else if (ch === " ") code = "Space";
+		else if (ch === "-") code = "Minus";
+		else if (ch === ".") code = "Period";
+		else return;
+		var shift = ch !== lower;
+		if (shift) later(function () { key("keydown", "Shift", "ShiftLeft", 16, 0); }, 20);
+		press(lower, code, lower.toUpperCase().charCodeAt(0));
+		if (shift) later(function () { key("keyup", "Shift", "ShiftLeft", 16, 0); }, 20);
+	}
 	function type(text) {
+		if (window.GAMIDIO_TEXT_KEYS) {
+			for (var n = 0; n < text.length; n++) typeKey(text.charAt(n));
+			return;
+		}
 		for (var i = 0; i < text.length; i++) {
 			(function (ch, c) {
 				later(function () { key("keypress", ch, "", c, c); }, 20);
@@ -118,7 +136,7 @@
 		if (!touch || !document.body) return;
 		if (!input) build();
 		active = !!on;
-		button.style.display = active ? "block" : "none";
+		button.style.display = active && !window.GAMIDIO_TEXT_KEYS ? "block" : "none";
 		if (active) {
 			reset();
 			input.focus(); // opens the keyboard where the browser allows it outside a tap (Android)
