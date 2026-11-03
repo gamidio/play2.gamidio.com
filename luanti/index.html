@@ -1,80 +1,106 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script>/* Gamidio: no requests to third-party servers from this game */(function(){
-var dead=new URL('gamidio-offline-blocked',location.href).href;
-var foreign=function(u){try{return new URL(u,location.href).origin!==location.origin}catch(e){return false}};
-var f=window.fetch;if(f){window.fetch=function(i,o){var u=typeof i==='string'?i:(i&&i.url);if(u&&foreign(u)){return f.call(window,dead,o&&{method:'GET'})}return f.apply(window,arguments)}}
-var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);if(u&&foreign(u)){a[0]='GET';a[1]=dead}return op.apply(this,a)};
-var W=window.WebSocket;if(W){window.WebSocket=function(u,p){if(foreign(String(u).replace(/^ws/,'http')))throw new DOMException('blocked by Gamidio','SecurityError');return new W(u,p)};window.WebSocket.prototype=W.prototype}
-})();</script>
-<script src="coi-serviceworker.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Luanti</title>
+<title>Luanti – Gamidio</title>
+<!-- Gamidio bar (owner 2026-11-03): a game that needs its own page keeps a thin Gamidio bar on top. The game runs in a
+     frame from the same folder, so its cross-origin isolation (WebAssembly threads), saves and touch controls stay. -->
+<script src="coi-serviceworker.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#0d1117;color:#e6edf3;font:16px system-ui,sans-serif}
-#gamidio-start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:16px;z-index:10;
-background:radial-gradient(circle at 50% 30%,#1f3b2a,#0d1117 70%)}
-#gamidio-start h1{margin:0;font-size:clamp(34px,7vw,56px);letter-spacing:.04em}
-#gamidio-start p{margin:0;max-width:34em;opacity:.8}
-#gamidio-play{font:700 22px system-ui,sans-serif;padding:14px 40px;border:0;border-radius:12px;background:#4ade80;color:#0d1117;cursor:pointer}
-#gamidio-play:disabled{opacity:.45;cursor:default}
-#gamidio-menu{font:600 15px system-ui,sans-serif;padding:8px 18px;border:1px solid rgba(255,255,255,.35);border-radius:10px;background:transparent;color:#e6edf3;cursor:pointer}
-#gamidio-menu:disabled{opacity:.45;cursor:default}
-#gamidio-status{min-height:1.4em;opacity:.85}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font:500 14px system-ui,-apple-system,sans-serif}
+#gb{position:absolute;left:0;right:0;top:0;height:32px;display:flex;align-items:center;gap:16px;padding:0 12px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));background:#17121f;color:#fff;box-sizing:border-box;z-index:5}
+#gb a{color:#b9b0cc;text-decoration:none;display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:0}
+#gb a:hover,#gb a:focus-visible{color:#fff}
+#gb .logo{color:#fff}
+#gb .g{flex:none;width:18px;height:18px;border-radius:5px;background:#7c5cff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+#gb .name{overflow:hidden;text-overflow:ellipsis}
+#gb .sp{flex:1}
+#gb button{font:inherit;color:#fff;background:#7c5cff;border:0;border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+#gb button:hover{background:#6a4ae6}
+#gb svg{flex:none}
+#stage{position:absolute;left:0;right:0;top:32px;bottom:0;overflow:hidden}
+#game{border:0;display:block;width:100%;height:100%;transform-origin:0 0}
+#pill{display:none;position:absolute;z-index:6;top:max(8px,env(safe-area-inset-top));width:30px;height:30px;border-radius:50%;background:rgba(23,18,31,.72);border:1px solid rgba(255,255,255,.55);color:#fff;align-items:center;justify-content:center;font-size:13px;cursor:pointer;padding:0}
+#pill.left{left:max(8px,env(safe-area-inset-left))}
+#pill.right{right:max(8px,env(safe-area-inset-right))}
+#pill.center{left:50%;transform:translateX(-50%)}
+body.full #gb{display:none}
+body.full #stage{top:0}
+body.full #pill{display:flex}
+body.full.peek #gb{display:flex}
+@media (max-width:700px),(max-height:500px){
+  #gb{height:26px;gap:12px;font-size:13px}
+  #stage{top:26px}
+  #gb .g{width:16px;height:16px;font-size:10px}
+  #gb .more{display:none}
+  #gb button{padding:2px 8px}
+}
+@media (max-width:420px){#gb .brand,#gb .fsl{display:none}}
 </style>
 </head>
 <body>
-<div id="gamidio-start">
-  <h1>Luanti</h1>
-  <p>An open-source voxel game: explore, mine, craft and build in an endless world.</p>
-  <div id="gamidio-status">Loading&hellip;</div>
-  <button id="gamidio-play" disabled>Play</button>
-  <button id="gamidio-menu" disabled>Worlds and settings</button>
-  <p style="font-size:14px">The first start downloads the game. Your worlds are saved in this browser.</p>
-</div>
-<script src="c34d1cf219c4/launcher.js"></script>
+<nav id="gb" aria-label="Gamidio">
+  <a class="logo" href="https://gamidio.com/" title="Gamidio home"><span class="g" aria-hidden="true">G</span><span class="brand">Gamidio</span></a>
+  <a href="https://gamidio.com/game/luanti/" title="Back to the game page"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="name">Luanti</span></a>
+  <span class="sp"></span>
+  <a class="more" href="https://gamidio.com/games/">More games</a>
+  <button type="button" id="fs"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="fsl">Fullscreen</span></button>
+</nav>
+<div id="stage"><iframe id="game" title="Luanti" allow="cross-origin-isolated; autoplay; fullscreen; gamepad; clipboard-write; screen-wake-lock; accelerometer; gyroscope"></iframe></div>
+<button type="button" id="pill" class="left" aria-label="Show the Gamidio bar">G</button>
 <script>
 (function () {
-  var status = document.getElementById('gamidio-status');
-  var play = document.getElementById('gamidio-play');
-  var menu = document.getElementById('gamidio-menu');
+  var DESIGN = 0;  // games that need a desktop-sized window get it on small screens, scaled down
+  var game = document.getElementById('game'), stage = document.getElementById('stage');
+  var fs = document.getElementById('fs'), pill = document.getElementById('pill'), label = fs.querySelector('.fsl');
+  game.src = 'game.html' + location.search + location.hash;
+  game.addEventListener('load', function () { try { game.contentWindow.focus(); } catch (e) {} });
+  stage.addEventListener('pointerdown', function () { try { game.contentWindow.focus(); } catch (e) {} });
+
   var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  var args = LuantiArgs.fromQueryString(window.location.search);
-  var mtl = new LuantiLauncher();
-  mtl.addPacks(args.packs);
-  mtl.onprogress = function (name, progress) {
-    var what = name.indexOf('install') === 0 ? 'Installing' : 'Downloading';
-    status.textContent = what + ' ' + Math.round(progress * 100) + '%';
-  };
-  mtl.onready = function () { status.textContent = 'Ready'; play.disabled = false; menu.disabled = false; };
-  mtl.onexit = function () { location.reload(); };
-  mtl.onerror = function (err) { status.textContent = 'Something went wrong: ' + err; };
-  function start(direct) {
-    // Luanti's own touch controls (joystick, jump/dig/place buttons): "auto" switches only after a first touch event
-    // reaches the game, which never happens on the web port, so phones are told directly.
-    if (touch) mtl.setConf('touch_controls', 'true');
-    // The game measures its window in CSS pixels: a density above 1 only blows up the hotbar and the hearts. Set on
-    // every start, because players of an earlier version have 3.5 saved in their settings (owner 2026-11-01).
-    if (touch) mtl.setConf('display_density_factor', '1');
-    // Small screens: Luanti's menus are laid out for 600+ px of height, but text below 0.8 is too small to read.
-    var h = Math.min(window.innerHeight, screen.height || window.innerHeight);
-    if (h < 600) mtl.setConf('gui_scaling', String(Math.max(0.8, Math.round(h / 600 * 100) / 100)));
-    if (direct) {
-      // Straight into a world (created on the first start), no typing needed.
-      args.go = true;
-      args.world = '/luanti/worlds/Gamidio world';
-      args.extra = ['--gameid', 'minetest_game'];
+  function fit() {
+    var w = stage.clientWidth, h = stage.clientHeight;
+    if (DESIGN && touch && Math.min(screen.width, screen.height) < 640 && w < DESIGN) {
+      var s = w / DESIGN;
+      game.style.width = DESIGN + 'px';
+      game.style.height = Math.round(h / s) + 'px';
+      game.style.transform = 'scale(' + s + ')';
+    } else {
+      game.style.width = game.style.height = game.style.transform = '';
     }
-    document.getElementById('gamidio-start').remove();
-    mtl.setLang('en');
-    mtl.launch(args);
   }
-  play.addEventListener('click', function () { start(true); });
-  menu.addEventListener('click', function () { start(false); });
+  fit();
+  addEventListener('resize', fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+
+  var root = document.documentElement;
+  var request = root.requestFullscreen || root.webkitRequestFullscreen;
+  var exit = document.exitFullscreen || document.webkitExitFullscreen;
+  function isFull() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  if (!request) fs.hidden = true;  // iPhone Safari has no fullscreen for pages
+  fs.addEventListener('click', function () {
+    if (isFull()) { exit.call(document); return; }
+    var done = request.call(root, {navigationUI: 'hide'});
+    var lock = function () { if (touch && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); };
+    if (done && done.then) done.then(lock, function () {}); else lock();
+  });
+  var peekTimer = 0;
+  function changed() {
+    document.body.classList.toggle('full', isFull());
+    document.body.classList.remove('peek');
+    label.textContent = isFull() ? 'Exit fullscreen' : 'Fullscreen';
+    setTimeout(fit, 50);
+  }
+  document.addEventListener('fullscreenchange', changed);
+  document.addEventListener('webkitfullscreenchange', changed);
+  // In fullscreen the bar hides; the small G shows it for a few seconds.
+  pill.addEventListener('click', function () {
+    document.body.classList.add('peek');
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(function () { document.body.classList.remove('peek'); }, 4000);
+  });
 })();
 </script>
-<script src="gamidio-fullscreen.js"></script>
 </body>
 </html>

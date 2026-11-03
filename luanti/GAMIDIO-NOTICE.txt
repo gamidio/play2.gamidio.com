@@ -19,3 +19,4 @@ Changes made by Gamidio:
   - (build output) index.html: coi-serviceworker 0.1.7 (MIT) for cross-origin isolation (threads)
   - (build output) index.html: offline guard: no connections to third-party servers (ContentDB, server list)
   - gamidio-fullscreen.js: fullscreen button for phones, written by Gamidio
+  - index.html: Gamidio bar page (logo, back to the game page, fullscreen); the game's own page is now game.html, shown in a frame below the bar

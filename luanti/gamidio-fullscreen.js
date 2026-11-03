@@ -6,6 +6,7 @@
 (function () {
 	'use strict';
 	if (!('ontouchstart' in window) && !(navigator.maxTouchPoints > 0)) return;
+	if (window.top !== window) return;  // under the Gamidio bar, which has its own button
 	var el = document.documentElement;
 	var request = el.requestFullscreen || el.webkitRequestFullscreen;
 	if (!request) return;  // iPhone Safari has no fullscreen for pages.
